@@ -134,7 +134,12 @@ enum List[A]:
       case (_, (l, _)) => (l, 0)
     result
 
-  def collect(predicate: PartialFunction[A, A]): List[A] = ???
+  def collect[B](predicate: PartialFunction[A, B]): List[B] = this match
+    case h :: t if predicate.isDefinedAt(h) => predicate(h) :: t.collect(predicate)
+    case _ :: t => t.collect(predicate)
+    case _ => Nil()
+
+  def collect2[B](predicate: PartialFunction[A, B]): List[B] = filter(predicate.isDefinedAt).map(predicate)
 
 // Factories
 object List:
@@ -168,3 +173,4 @@ def main(): Unit =
   println(reference.takeRight(3)) // List(2, 3, 4)
   println(reference.takeRight2(3)) // List(2, 3, 4)
   println(reference.collect { case x if x % 2 == 0 => x + 1 }) // List(3, 5)
+  println(reference.collect2 { case x if x % 2 == 0 => x + 1 }) // List(3, 5)
