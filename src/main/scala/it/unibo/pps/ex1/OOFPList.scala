@@ -94,19 +94,33 @@ enum List[A]:
 
   def partition(predicate: A => Boolean): (List[A], List[A]) =
     @tailrec
-    def _partition(remaining: List[A])(satisfied: List[A], notSatisfied: List[A]): (List[A], List[A]) = remaining match
-      case h :: t if predicate(h) => _partition(t)(h :: satisfied, notSatisfied)
-      case h :: t => _partition(t)(satisfied, h :: notSatisfied)
-      case _ => (satisfied, notSatisfied)
+    def _partition(remaining: List[A])(l1: List[A], l2: List[A]): (List[A], List[A]) = remaining match
+      case h :: t if predicate(h) => _partition(t)(h :: l1, l2)
+      case h :: t => _partition(t)(l1, h :: l2)
+      case _ => (l1, l2)
 
-    val (satisfied, notSatisfied) = _partition(this)(Nil(), Nil())
-    (satisfied.reverse, notSatisfied.reverse)
+    val (l1, l2) = _partition(this)(Nil(), Nil())
+    (l1.reverse, l2.reverse)
 
   def partition2(predicate: A => Boolean): (List[A], List[A]) = foldRight[(List[A], List[A])]((Nil(), Nil())):
-    case (elem, (satisfied, notSatisfied)) if predicate(elem) => (elem :: satisfied, notSatisfied)
-    case (elem, (satisfied, notSatisfied)) => (satisfied, elem :: notSatisfied)
+    case (elem, (l1, l2)) if predicate(elem) => (elem :: l1, l2)
+    case (elem, (l1, l2)) => (l1, elem :: l2)
 
-  def span(predicate: A => Boolean): (List[A], List[A]) = ???
+  def span(predicate: A => Boolean): (List[A], List[A]) =
+    @tailrec
+    def _span(remaining: List[A], continue: Boolean)(l1: List[A], l2: List[A]): (List[A], List[A]) = remaining match
+      case h :: t if continue && predicate(h) => _span(t, true)(h :: l1, l2)
+      case h :: t => _span(t, false)(l1, h :: l2)
+      case _ => (l1, l2)
+
+    val (l1, l2) = _span(this, true)(Nil(), Nil())
+    (l1.reverse, l2.reverse)
+
+  def span2(predicate: A => Boolean): (List[A], List[A]) =
+    val (l1, l2, _) = foldLeft[(List[A], List[A], Boolean)]((Nil(), Nil(), true)):
+      case ((l1, l2, continue), elem) if continue && predicate(elem) => (elem :: l1, l2, true)
+      case ((l1, l2, continue), elem) => (l1, elem :: l2, false)
+    (l1.reverse, l2.reverse)
 
   def takeRight(n: Int): List[A] = ???
 
@@ -138,5 +152,7 @@ def main(): Unit =
   println(reference.partition2(_ % 2 == 0)) // (List(2, 4), List(1, 3))
   println(reference.span(_ % 2 != 0)) // (List(1), List(2, 3, 4))
   println(reference.span(_ < 3)) // (List(1, 2), List(3, 4))
+  println(reference.span2(_ % 2 != 0)) // (List(1), List(2, 3, 4))
+  println(reference.span2(_ < 3)) // (List(1, 2), List(3, 4))
   println(reference.takeRight(3)) // List(2, 3, 4)
   println(reference.collect { case x if x % 2 == 0 => x + 1 }) // List(3, 5)
