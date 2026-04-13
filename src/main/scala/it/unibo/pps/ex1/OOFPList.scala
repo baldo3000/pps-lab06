@@ -84,7 +84,7 @@ enum List[A]:
       case (elem, (counter, list)) => (counter - 1, (elem, counter) :: list)
     result
 
-  def reverse: List[A] =
+  def reverse(): List[A] =
     @tailrec
     def _reverse(l: List[A], acc: List[A]): List[A] = l match
       case h :: t => _reverse(t, h :: acc)
@@ -100,7 +100,7 @@ enum List[A]:
       case _ => (l1, l2)
 
     val (l1, l2) = _partition(this)(Nil(), Nil())
-    (l1.reverse, l2.reverse)
+    (l1.reverse(), l2.reverse())
 
   def partition2(predicate: A => Boolean): (List[A], List[A]) = foldRight[(List[A], List[A])]((Nil(), Nil())):
     case (elem, (l1, l2)) if predicate(elem) => (elem :: l1, l2)
@@ -114,15 +114,25 @@ enum List[A]:
       case _ => (l1, l2)
 
     val (l1, l2) = _span(this, true)(Nil(), Nil())
-    (l1.reverse, l2.reverse)
+    (l1.reverse(), l2.reverse())
 
   def span2(predicate: A => Boolean): (List[A], List[A]) =
     val (l1, l2, _) = foldLeft[(List[A], List[A], Boolean)]((Nil(), Nil(), true)):
       case ((l1, l2, continue), elem) if continue && predicate(elem) => (elem :: l1, l2, true)
       case ((l1, l2, continue), elem) => (l1, elem :: l2, false)
-    (l1.reverse, l2.reverse)
+    (l1.reverse(), l2.reverse())
 
-  def takeRight(n: Int): List[A] = ???
+  def take(n: Int): List[A] = this match
+    case h :: t if n > 0 => h :: t.take(n - 1)
+    case _ => Nil()
+
+  def takeRight(n: Int): List[A] = reverse().take(n).reverse()
+
+  def takeRight2(n: Int): List[A] =
+    val (result, _) = foldRight[(List[A], Int)]((Nil(), n)):
+      case (elem, (l, n)) if n > 0 => (elem :: l, n - 1)
+      case (_, (l, _)) => (l, 0)
+    result
 
   def collect(predicate: PartialFunction[A, A]): List[A] = ???
 
@@ -154,5 +164,7 @@ def main(): Unit =
   println(reference.span(_ < 3)) // (List(1, 2), List(3, 4))
   println(reference.span2(_ % 2 != 0)) // (List(1), List(2, 3, 4))
   println(reference.span2(_ < 3)) // (List(1, 2), List(3, 4))
+  println(reference.take(3)) // List(1, 2, 3)
   println(reference.takeRight(3)) // List(2, 3, 4)
+  println(reference.takeRight2(3)) // List(2, 3, 4)
   println(reference.collect { case x if x % 2 == 0 => x + 1 }) // List(3, 5)
