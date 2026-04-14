@@ -83,13 +83,26 @@ object ConferenceReviewing:
       val finals = reviews(article).map(_(Question.Final))
       finals.sum.toDouble / finals.size
 
+    private def hasRequiredRelevance(article: Int): Boolean =
+      reviews(article).map(_(Question.Relevance)).exists(_ >= requiredRelevance)
+
     private def isAccepted(article: Int): Boolean =
-      reviews(article).map(_(Question.Relevance)).exists(_ >= requiredRelevance) &&
-        averageFinalScore(article) >= requiredFinal
+      averageFinalScore(article) >= requiredFinal && hasRequiredRelevance(article) // Short-circuit
 
     override def acceptedArticles: Set[Int] = reviews.filter((a, _) => isAccepted(a)).keySet
 
-    override def sortedAcceptedArticles: List[(Int, Double)] = ???
+    // There is an inefficiency given from computing averageFinalScore two times.
+    override def sortedAcceptedArticles: List[(Int, Double)] =
+      acceptedArticles.toList.map(a => (a, averageFinalScore(a))).sortBy(_._2)
+
+    // Efficient version
+    def sortedAcceptedArticlesEfficient: List[(Int, Double)] =
+      reviews.keys.flatMap(article =>
+        val averageFinal = averageFinalScore(article)
+        if averageFinal >= requiredFinal && hasRequiredRelevance(article) // Short-circuit
+        then Some(article -> averageFinal)
+        else None
+      ).toList.sortBy(_._2)
 
     override def averageWeightedFinalScoreMap: Map[Int, Double] = ???
 
