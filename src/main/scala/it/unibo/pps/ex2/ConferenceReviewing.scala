@@ -104,7 +104,12 @@ object ConferenceReviewing:
         else None
       ).toList.sortBy(_._2)
 
-    override def averageWeightedFinalScoreMap: Map[Int, Double] = ???
+    private def averageWeightedFinalScore(article: Int): Double =
+      val finalsWeighted = reviews(article).map(review => review(Question.Confidence) * review(Question.Final) / 10.0)
+      finalsWeighted.sum / finalsWeighted.size
+
+    override def averageWeightedFinalScoreMap: Map[Int, Double] =
+      reviews.map(a => a._1 -> averageWeightedFinalScore(a._1))
 
   end ConferenceReviewingImpl
 

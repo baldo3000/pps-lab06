@@ -63,10 +63,10 @@ class ConferenceReviewingTest:
   @Test
   def optionalTestAverageWeightedFinalScore(): Unit =
     // L'articolo 1 ha media pesata finale pari a (4.8+5.4)/2 = 5,1, con scarto massimo 0.01
-    assertEquals(cr.averageWeightedFinalScoreMap(1), (4.8 + 5.4) / 2, 0.01)
+    assertEquals((4.8 + 5.4) / 2, cr.averageWeightedFinalScoreMap(1), 0.01)
     // E simile per gli altri
-    assertEquals(cr.averageWeightedFinalScoreMap(2), (9.0 + 6.0) / 2, 0.01)
-    assertEquals(cr.averageWeightedFinalScoreMap(3), (0.9 + 1.6) / 2, 0.01)
-    assertEquals(cr.averageWeightedFinalScoreMap(4), (3.6 + 5.6 + 5.6) / 3, 0.01)
-    assertEquals(cr.averageWeightedFinalScoreMap(5), (6.0 + 7.0) / 2, 0.01)
-    assertEquals(cr.averageWeightedFinalScoreMap.size, 5)
+    assertEquals((9.0 + 6.0) / 2, cr.averageWeightedFinalScoreMap(2), 0.01)
+    assertEquals((0.9 + 1.6) / 2, cr.averageWeightedFinalScoreMap(3), 0.01)
+    assertEquals((3.6 + 5.6 + 5.6) / 3, cr.averageWeightedFinalScoreMap(4), 0.01)
+    assertEquals((6.0 + 7.0) / 2, cr.averageWeightedFinalScoreMap(5), 0.01)
+    assertEquals(5, cr.averageWeightedFinalScoreMap.size)
