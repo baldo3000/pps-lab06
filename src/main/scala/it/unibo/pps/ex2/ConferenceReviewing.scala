@@ -58,10 +58,9 @@ object ConferenceReviewing:
     Confidence, // ("Ti senti competente a commentarlo?");
     Final // ("É un articolo da accettare?")
 
-  private val requiredFinal = 5.0
-  private val requiredRelevance = 8
-
   private class ConferenceReviewingImpl extends ConferenceReviewing:
+    private val requiredFinal = 5.0
+    private val requiredRelevance = 8
     private var reviews = Map[Int, List[Map[Question, Int]]]().withDefaultValue(List())
 
     override def loadReview(article: Int, scores: Map[Question, Int]): Unit =
