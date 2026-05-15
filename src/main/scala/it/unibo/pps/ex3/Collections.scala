@@ -17,7 +17,7 @@ object PerformanceUtils:
 
   def measure[T](expr: => T): MeasurementResults[T] = measure("")(expr)
 
-@main def checkPerformance: Unit =
+@main def checkPerformance(): Unit =
 
   /* Linear sequences: List, ListBuffer */
 
@@ -31,4 +31,13 @@ object PerformanceUtils:
   import PerformanceUtils.*
   val lst = (1 to 10000000).toList
   val vec = (1 to 10000000).toVector
-  assert(measure("list last")(lst.last) > measure("vec last")(vec.last))
+  val arr = (1 to 10000000).toArray
+  measure("list last")(lst.last)
+  measure("vec last")(vec.last)
+  measure("arr last")(arr.last)
+  measure("list middle")(lst(5000000))
+  measure("vec middle")(vec(5000000))
+  measure("arr middle")(arr(5000000))
+  measure("list middle")(lst.find(_ == 5000000))
+  measure("vec find middle")(vec.find(_ == 5000000))
+  measure("arr find middle")(arr.find(_ == 5000000))
